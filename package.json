@@ -1,0 +1,23 @@
+{
+  "name": "to-layer-json",
+  "version": "0.0.1",
+  "description": "To layer JSON",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michiel/to-layer-json.git"
+  },
+  "author": "Michiel Kalkman <michiel@nosuchtype.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michiel/to-layer-json/issues"
+  },
+  "homepage": "https://github.com/michiel/to-layer-json#readme",
+  "dependencies": {
+    "knex": "^0.95.10",
+    "knex-schema-inspector": "^1.5.13"
+  }
+}
