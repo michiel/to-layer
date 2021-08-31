@@ -1,7 +1,7 @@
 const knex = require('knex');
 const schemaInspector = require('knex-schema-inspector').default;
 
-const {toId, tableName} = require('../util');
+const {toId, tableId} = require('../util');
 
 /*
 {
@@ -26,16 +26,17 @@ async function extractor(knexParams) {
 
   return foreignKeys.map(fk=> {
     return {
-      id: toId(`data_rel_${databaseName}_${fk.constraint_name}`),
-      label: `Foreign Key ${fk.constraint_name}`,
-      layer: 'data_relationship',
+      id: toId(`data_link_${databaseName}_${fk.constraint_name}`),
+      label: `${fk.constraint_name}`,
+      layer: 'data_link',
       nodes: [
-        tableName(databaseName, fk.table),
-        tableName(databaseName, fk.foreign_key_table),
+        tableId(databaseName, fk.table),
+        tableId(databaseName, fk.foreign_key_table),
       ],
       attrs: {
-        type: 'Foreign key',
+        type: 'DatabaseForeignKey',
         database: databaseName,
+        extractor: 'foreignKeysFromDb',
       }
     }
   });

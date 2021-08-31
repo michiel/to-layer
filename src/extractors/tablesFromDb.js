@@ -1,7 +1,7 @@
 const knex = require('knex');
 const schemaInspector = require('knex-schema-inspector').default;
 
-const {toId, tableName} = require('../util');
+const {toId, tableId} = require('../util');
 
 /*
 {
@@ -26,11 +26,13 @@ async function extractor(knexParams) {
 
   return tables.map(table=> {
     return {
-      id: tableName(databaseName, table),
-      label: `Table ${table}`,
+      id: tableId(databaseName, table),
+      label: `${table}`,
       layer: 'data',
       attrs: {
+        type: 'DatabaseTable',
         database: databaseName,
+        extractor: 'tablesFromDb',
       }
     }
   });

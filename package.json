@@ -4,7 +4,7 @@
   "description": "To layer JSON",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,8 @@
     "knex": "^0.95.10",
     "knex-schema-inspector": "^1.5.13",
     "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "jest": "^27.1.0"
   }
 }

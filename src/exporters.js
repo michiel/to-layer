@@ -109,6 +109,12 @@ graph [
         id ${el.id}_1
         source ${el.nodes[0]}
         target ${el.id}
+        `;
+                Object.entries(el.attrs).forEach(([k, v])=> {
+                    str += `
+        ${k} "${v}"`;
+                });
+                str += `
     ]`;
                 output.push(str);
                 str = `
@@ -116,6 +122,12 @@ graph [
         id ${el.id}_2
         source ${el.id}
         target ${el.nodes[1]}
+        `;
+                Object.entries(el.attrs).forEach(([k, v])=> {
+                    str += `
+        ${k} "${v}"`;
+                });
+                str += `
     ]`;
                 output.push(str);
 
