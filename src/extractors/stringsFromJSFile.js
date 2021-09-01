@@ -14,10 +14,10 @@ function extractor(filename) {
       // console.log(node.type);
       if (node.type === "TemplateLiteral") {
         // val = node.quasis.map(q => q.value.cooked).join(" '1' ");
-        val = node.quasis.map(q => q.value.cooked).join(" 1 ");
-        val = val.replace(/\#.*\n/g, '\n');
-        val = val.replace(/\n/g, '');
-        val = val.replace(/\s+/g, ' ');
+        val = node.quasis.map(q => q.value.cooked).join(" ");
+        // val = val.replace(/\#.*\n/g, '\n');
+        // val = val.replace(/\n/g, '');
+        // val = val.replace(/\s+/g, ' ');
 
       }
       if (node.type === "Literal") {
@@ -38,6 +38,7 @@ function extractor(filename) {
       }
       */
 
+      lines.push(val);
     }
   });
 

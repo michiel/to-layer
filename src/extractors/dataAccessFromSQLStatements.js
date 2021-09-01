@@ -1,3 +1,21 @@
+const {toId, tableId, componentId, onlyUnique} = require('../util');
+
+function summToLayer(summ, fnName, dbName, id=0) {
+  return {
+    id: toId(`data_access_${dbName}_${fnName}_${id}`),
+    label: `Access ${fnName} ${id}`,
+    layer: 'data_access',
+    source: componentId(fnName),
+    targets: summ.tables.map(t => tableId(dbName, t)).filter(onlyUnique),
+    attrs: {
+      type: 'DatabaseAccess',
+      database: dbName,
+      extractor: 'dataAccessFromSQLStatements',
+      querytype: summ.type,
+      query: summ.query,
+    }
+  }
+}
 
 function extractor(statements, fnName='unknown', dbName='unknown') {
   const relationships = [];
@@ -86,7 +104,9 @@ function extractor(statements, fnName='unknown', dbName='unknown') {
     }
 
     if (summ.tables.length !== 0) {
-      relationships.push(summ);
+      relationships.push(
+        summToLayer(summ, fnName, dbName, relationships.length)
+      );
     } else {
     }
   });

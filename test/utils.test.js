@@ -113,3 +113,20 @@ test('merge elements function string ids', ()=> {
   ]);
 });
 
+test('table variations from camel case', ()=> {
+  expect(utils.buildTableVariationsFromCamelCase('MyTableName')).toEqual([
+    "mytablename",
+    "MyTableName",
+    "My_Table_Name",
+    "My_Table_Name",
+    "my_table_name",
+  ]);
+
+  expect(utils.buildTableVariationsFromCamelCase('myTableName')).toEqual([
+    "mytablename",
+    "myTableName",
+    "my_Table_Name",
+    "My_Table_Name",
+    "my_table_name",
+  ]);
+});

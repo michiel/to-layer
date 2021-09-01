@@ -1,7 +1,7 @@
 const knex = require('knex');
 const schemaInspector = require('knex-schema-inspector').default;
 
-const {toId, tableId} = require('../util');
+const {toId, tableId, buildTableVariationsFromCamelCase } = require('../util');
 
 /*
 {
@@ -16,7 +16,11 @@ const {toId, tableId} = require('../util');
 }
 */
 
-async function extractor(knexParams) {
+const defaultConfig = {
+  skipUnknown: true,
+};
+
+async function extractor(knexParams, config = defaultConfig) {
 
   const database = knex(knexParams);
   const inspector = schemaInspector(database);
@@ -29,41 +33,23 @@ async function extractor(knexParams) {
   const regex = /._?id$/i;
   const regexReplace = /_?id$/i;
 
-  function matchTable(str) {
-    let variation = str.toLowerCase();
-    if (tables.indexOf(variation) > -1) {
-      return variation;
-    }
-    variation = str;
-    if (tables.indexOf(variation) > -1) {
-      return variation;
-    }
-    variation = variation.replace(/([A-Z])/g, '_$1');
-    if (tables.indexOf(variation) > -1) {
-      return variation;
-    }
-    variation = variation.replace(/^./, function(str){ return str.toUpperCase(); })
-    if (tables.indexOf(variation) > -1) {
-      return variation;
-    }
-    variation = variation.toLowerCase();
-    if (tables.indexOf(variation) > -1) {
-      return variation;
-    }
-
-  }
 
   columns.forEach(el=> {
     if (el.column.match(regex)) {
       let table = el.column.replace(regexReplace, '');
-      let tableMatch = matchTable(table);
-      if (tableMatch) {
+      let tableVariations = buildTableVariationsFromCamelCase(table);
+      let tableMatch = tableVariations.filter(t => {
+        return tables.indexOf(t) > -1;
+      });
+
+      if (tableMatch.length > 0) {
+        const foundTable = tableMatch[0];
         res.push({
-          id: toId(`data_link_${databaseName}_${el.column}`),
+          id: toId(`data_link_${databaseName}_${el.table}_${el.column}`),
           label: `${el.column}`,
           layer: 'data_link',
           nodes: [
-            tableId(databaseName, tableMatch),
+            tableId(databaseName, foundTable),
             tableId(databaseName, el.table),
           ],
           attrs: {
@@ -72,9 +58,9 @@ async function extractor(knexParams) {
             extractor: 'inferredRelationshipsFromDb',
           }
         });
-      } else {
+      } else if (!config.skipUnknown) {
         res.push({
-          id: toId(`data_link_${databaseName}_${el.column}`),
+          id: toId(`data_link_${databaseName}_${el.table}_${el.column}`),
           label: `${el.column}`,
           layer: 'data_link',
           nodes: [
