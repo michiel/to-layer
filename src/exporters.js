@@ -22,7 +22,8 @@ graph [
 `;
 
         Object.entries(el.attrs).forEach(([k, v])=> {
-          str += `        ${k} ${v}`;
+          str += `
+        ${k} "${v}"`;
         });
         str += `
     ]`;
@@ -44,11 +45,13 @@ graph [
         layer ${el.layer}`;
 
         Object.entries(el.attrs).forEach(([k, v])=> {
-          str += `        ${k} ${v}`;
+          str += `
+        ${k} "${v}"`;
         });
         str += `
     ]`;
         output.push(str);
+        break;
 
 
 
@@ -65,13 +68,15 @@ graph [
         layer ${el.layer}`;
 
           Object.entries(el.attrs).forEach(([k, v])=> {
-            str += `        ${k} ${v}`;
+            str += `
+        ${k} "${v}"`;
           });
           str += `
     ]`;
           output.push(str);
 
         });
+        break;
 
 
       default:
@@ -227,7 +232,87 @@ graph [
   return output.join('\n');
 }
 
+function colorForLayer(layer) {
+  return {
+    'data_link': 'yellow',
+    'data_access': 'magenta',
+    'data': 'lightgreen',
+    'compute': 'lightblue',
+  }[layer] || 'cyan';
+}
+
+function toF3DJSON(arr) {
+  const props = {
+    fontcolor: 'white',
+  };
+  let output = {
+    nodes: [],
+    links: [],
+  };
+
+  arr.forEach(el=> {
+    switch(el.layer) {
+      case 'compute':
+        output.nodes.push({
+          id: el.id,
+          label: el.label,
+          name: el.label,
+          color: colorForLayer(el.layer),
+          ...props,
+        });
+        break;
+
+      case 'data':
+
+        output.nodes.push({
+          id: el.id,
+          label: el.label,
+          name: el.label,
+          color: colorForLayer(el.layer),
+          ...props,
+        });
+        break;
+
+      case 'data_link':
+
+        output.links.push({
+          id: el.id,
+          label: el.label,
+          name: el.label,
+          color: colorForLayer(el.layer),
+          source: el.nodes[0],
+          target: el.nodes[1],
+          ...props,
+        });
+        break;
+
+      case 'data_access':
+
+        el.targets.forEach(t=> {
+          output.links.push({
+            id: el.id,
+            label: el.label,
+            name: el.label,
+            color: colorForLayer(el.layer),
+            source: el.source,
+            target: t,
+            ...props,
+          });
+        });
+        break;
+
+      default:
+        throw new Error('Unhandled case ' + el.layer);
+        break;
+
+    }
+  });
+
+  return output;
+}
+
 module.exports = {
+  toF3DJSON,
   toGML,
   toGMLExpanded,
 };

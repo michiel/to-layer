@@ -95,6 +95,59 @@ async function extractAll(path, extension, fileExtractor) {
   });
 }
 
+function summary(arr) {
+  const layers = arr.map(el=> el.layer).filter(onlyUnique);
+  const layerData = {};
+  layers.forEach(layer=> {
+    layerData[layer] = arr.filter(el=> el.layer === layer).length;
+  });
+  return {
+    total: arr.length,
+    layers: layerData,
+  }
+};
+
+function missingNodesForLinks(arr) {
+  const missing = [];
+  const ids = new Set(arr.map(el => el.id).filter(onlyUnique));
+
+  function check(id) {
+    if (!ids.has(id)) {
+      let layer = '';
+      if (id.match(/^compute/)) {
+        layer = 'compute';
+      } else if (id.match(/^data/)) {
+        layer = 'data';
+      } else {
+        throw new Error('Unmatched layer ' + id);
+      }
+
+      missing.push({
+        id,
+        layer,
+        label : `(missing) ${id}`,
+        attrs : {},
+      });
+    }
+  };
+
+  arr.forEach(el => {
+    switch (el.layer) {
+      case 'data_access':
+        check(el.source);
+        el.targets.forEach(check);
+        break;
+      case 'data_link':
+        el.nodes.forEach(check);
+        break;
+      default:
+        // console.log('Skupping ', el.layer);
+    }
+  });
+
+  return mergeElements(missing);
+}
+
 
 module.exports = {
   toId,
@@ -104,4 +157,6 @@ module.exports = {
   extractAll,
   onlyUnique,
   componentId,
+  summary,
+  missingNodesForLinks,
 }
