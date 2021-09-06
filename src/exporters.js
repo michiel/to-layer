@@ -241,6 +241,12 @@ function colorForLayer(layer) {
   }[layer] || 'cyan';
 }
 
+function extractAttrs(attrs={}) {
+  return {
+    type: attrs.type || 'none',
+  };
+}
+
 function toF3DJSON(arr) {
   const props = {
     fontcolor: 'white',
@@ -257,7 +263,9 @@ function toF3DJSON(arr) {
           id: el.id,
           label: el.label,
           name: el.label,
+          layer: el.layer,
           color: colorForLayer(el.layer),
+          attrs: extractAttrs(el.attrs),
           ...props,
         });
         break;
@@ -268,7 +276,9 @@ function toF3DJSON(arr) {
           id: el.id,
           label: el.label,
           name: el.label,
+          layer: el.layer,
           color: colorForLayer(el.layer),
+          attrs: extractAttrs(el.attrs),
           ...props,
         });
         break;
@@ -279,9 +289,11 @@ function toF3DJSON(arr) {
           id: el.id,
           label: el.label,
           name: el.label,
+          layer: el.layer,
           color: colorForLayer(el.layer),
           source: el.nodes[0],
           target: el.nodes[1],
+          attrs: extractAttrs(el.attrs),
           ...props,
         });
         break;
@@ -293,9 +305,11 @@ function toF3DJSON(arr) {
             id: el.id,
             label: el.label,
             name: el.label,
+            layer: el.layer,
             color: colorForLayer(el.layer),
             source: el.source,
             target: t,
+            attrs: extractAttrs(el.attrs),
             ...props,
           });
         });
@@ -311,8 +325,61 @@ function toF3DJSON(arr) {
   return output;
 }
 
+function toCSVColumn(str) {
+  const val = str.replace(/"/g, '\\"');
+  return `"${val}"`;
+}
+
+function toCSV(arr) {
+
+  const attrs = [
+    'id',
+    'label',
+    'layer',
+    'source',
+    'target',
+    'targets',
+    'nodes',
+  ];
+
+  arr.forEach(el=> {
+    if (el.attrs) {
+      for (let key in el.attrs) {
+        if (attrs.indexOf(key) < 0) {
+          attrs.push(key);
+        }
+      }
+    }
+  });
+
+  const output = [];
+  output.push(attrs.join(','));
+  arr.forEach(el=> {
+    let res = new Array(attrs.length).fill('');
+    for (let tkey in el) {
+      if (tkey === 'attrs') {
+        for (let akey in el.attrs) {
+          let val = el.attrs[akey];
+          res[attrs.indexOf(akey)] = toCSVColumn(val);
+        }
+      } else {
+          let val = el[tkey];
+          if (tkey === 'nodes') {
+            res[attrs.indexOf('source')] = val[0];
+            res[attrs.indexOf('target')] = val[1];
+          }
+          res[attrs.indexOf(tkey)] = val;
+      }
+    }
+    output.push(res.join(','));
+  });
+  return output.join('\n');
+
+}
+
 module.exports = {
   toF3DJSON,
   toGML,
   toGMLExpanded,
+  toCSV,
 };

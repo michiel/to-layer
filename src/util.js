@@ -126,7 +126,9 @@ function missingNodesForLinks(arr) {
         id,
         layer,
         label : `(missing) ${id}`,
-        attrs : {},
+        attrs : {
+          type: 'missing',
+        },
       });
     }
   };

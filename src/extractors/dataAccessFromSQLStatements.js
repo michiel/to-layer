@@ -10,6 +10,10 @@ function componentStubs(das, config) {
         id: componentId(config.fnName),
         label: config.fnName,
         layer: 'compute',
+        attrs: {
+          type: config.componentStubType,
+          extractor: 'dataAccessFromSQLStatements',
+        }
       });
     }
   });
@@ -38,6 +42,7 @@ const defaultConfig = {
   fnName: 'unknown',
   dbName: 'unknown',
   generateComponentStubs: false,
+  componentStubType: 'unknown',
 };
 
 function extractor(statements, config=defaultConfig) {
